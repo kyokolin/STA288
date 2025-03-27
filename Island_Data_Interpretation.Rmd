@@ -28,7 +28,7 @@ glimpse(island_data)
 ```{r}
 # Data summary of the respiratory before treatment
 island_data %>%
-  summarise(median=median(day_0_resp), min=min(day_0_resp), max=max(day_0_resp), Q1=quantile((day_0_resp),0.25), Q3=quantile((day_0_resp),0.75), IQR=Q3-Q1)
+  summarise(mean=mean(day_0_resp),median=median(day_0_resp), min=min(day_0_resp), max=max(day_0_resp), Q1=quantile((day_0_resp),0.25), Q3=quantile((day_0_resp),0.75), IQR=Q3-Q1)
 ```
 
 ```{r}
@@ -43,7 +43,7 @@ island_data %>%
 ```{r}
 # Data summary of the respiratory after treatment
 island_data %>%
-  summarise(median=median(day_14_resp), min=min(day_14_resp), max=max(day_14_resp), Q1=quantile((day_14_resp),0.25), Q3=quantile((day_14_resp),0.75), IQR=Q3-Q1)
+  summarise(mean=mean(day_14_resp),median=median(day_14_resp), min=min(day_14_resp), max=max(day_14_resp), Q1=quantile((day_14_resp),0.25), Q3=quantile((day_14_resp),0.75), IQR=Q3-Q1)
 ```
 
 ```{r}
