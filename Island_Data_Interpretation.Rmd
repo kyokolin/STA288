@@ -1,0 +1,115 @@
+---
+title: "Island_Data_Interpretation"
+output: pdf_document
+date: "2025-03-21"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+island_data <- read_csv("STA288 Group Project Data - All.csv")
+
+glimpse(island_data)
+
+```
+
+```{r}
+# Data summary of the respiratory before treatment
+island_data %>%
+  summarise(median=median(day_0_resp), min=min(day_0_resp), max=max(day_0_resp), Q1=quantile((day_0_resp),0.25), Q3=quantile((day_0_resp),0.75), IQR=Q3-Q1)
+```
+
+```{r}
+# Graphical summary of the respiratory before treatment
+island_data %>%
+  ggplot(aes(x=`day_0_resp`)) +
+  geom_histogram(bins = 30, fill = "blue", color = "black") +
+  labs(title = "Histogram of respiratory rate before treatment")
+
+```
+
+```{r}
+# Data summary of the respiratory after treatment
+island_data %>%
+  summarise(median=median(day_14_resp), min=min(day_14_resp), max=max(day_14_resp), Q1=quantile((day_14_resp),0.25), Q3=quantile((day_14_resp),0.75), IQR=Q3-Q1)
+```
+
+```{r}
+# Graphical summary of the respiratory after treatment
+island_data %>%
+  ggplot(aes(x=`day_14_resp`)) +
+  geom_histogram(bins = 30, fill = "blue", color = "black") +
+  labs(title = "Histogram of respiratory rate after treatment")
+```
+
+```{r}
+#Bootstrap sampling
+
+set.seed(1009864354)
+
+resp_rate <- island_data %>%
+  filter(!is.na(day_0_resp), !is.na(day_14_resp))
+
+n <- nrow(resp_rate)
+reps <- 50000
+boot_diffs <- vector("numeric", reps)
+
+for(i in 1:reps) {
+  boot_sample <- resp_rate %>%
+    sample_n(size = n, replace = TRUE)
+  
+  boot_diffs[i] <- mean(boot_sample$day_14_resp - boot_sample$day_0_resp)
+}
+
+boot_df <- data.frame(resp_diff = boot_diffs)
+
+limits <- quantile(boot_df$resp_diff, c(0.025, 0.975))
+
+obs_diff <- mean(resp_rate$day_14_resp - resp_rate$day_0_resp)
+perm_diffs <- numeric(reps)
+
+for(i in 1:reps) {
+  signs <- sample(c(-1, 1), n, replace = TRUE)
+  flipped_diff <- (resp_rate$day_14_resp - resp_rate$day_0_resp) * signs
+  perm_diffs[i] <- mean(flipped_diff)
+}
+
+boot_p <- mean(abs(perm_diffs) >= abs(obs_diff))
+cat("Bootstrapped p-value", boot_p, "\n")
+
+boot_df %>%
+  ggplot(aes(x= resp_diff)) +
+  geom_histogram(binwidth = 0.2, colour = "black", fill = "lightblue") +
+  labs(x = "Bootstrap Mean Differences (Day 14 - Day 0)", title = "Bootstrap Sampling Distribution of Respiratory Rate") +
+  geom_vline(xintercept = limits[1], colour = "red", linetype = "dashed", linewidth = 0.8) +
+  geom_vline(xintercept = limits[2], colour = "red", linetype = "dashed", linewidth = 0.8) +
+  geom_vline(xintercept = mean(boot_diffs), colour = "darkblue", linetype = "solid", linewidth = 1)
+
+```
+
+
+
+```{r}
+#Inference test - 2-sided paired t-test
+
+# Null hypothesis: The mean respiratory rate at day 14 is equal to the mean at day 0.
+
+# Alternative hypothesis: The mean respiratory rate at day 14 is different from that at day 0.
+
+t_test_result <- t.test(resp_rate$day_14_resp, resp_rate$day_0_resp,
+                        paired = TRUE, alternative = "two.sided")
+
+print(t_test_result)
+```
