@@ -72,8 +72,10 @@ summary_stats <- island_data %>%
 summary_stats <- summary_stats %>%
   mutate(
     Mean_Diff = Mean_Post - Mean_Pre,
-    SD_Diff = sqrt((SD_Pre^2 / N_Pre) + (SD_Post^2 / N_Post)),  # Combined standard deviation for difference
-    SE_Diff = SD_Diff / sqrt(N_Pre),  # Standard error for the difference
+    SD_Diff = sqrt((SD_Pre^2 / N_Pre) + (SD_Post^2 / N_Post)),  
+    # Combined standard deviation for difference
+    SE_Diff = SD_Diff / sqrt(N_Pre),  
+    # Standard error for the difference
     CI_Lower_Diff = Mean_Diff - qt(0.975, df = N_Pre - 1) * SE_Diff,
     CI_Upper_Diff = Mean_Diff + qt(0.975, df = N_Pre - 1) * SE_Diff
   )
@@ -81,43 +83,50 @@ summary_stats <- summary_stats %>%
 # Print the updated summary table with the difference in sprint times and their confidence intervals
 print(summary_stats)
 ```
-*Table 1. Descriptive statistics for sprint speed at days 0 and 14 for the control and keto groups. Values represent the mean, standard deviation (SD), sample size (N), and 95% confidence intervals (CI).*
+*Table 1. Descriptive statistics for sprint time at days 0 and 14 for the control and keto groups. Values represent the mean, standard deviation (SD), sample size (N), and 95% confidence intervals (CI).*
 
-Descriptive statistics for sprint speed before and after the intervention are summarized in Table 1. The control group had a mean day 0 sprint time of 19.31 ± 3.89 seconds, which increased slightly to a mean of 19.82 ± 4.15 seconds after 14 days. Similarly, the keto group had an initial sprint speed of 20.02 ± 5.14 seconds, rising to 20.30 ± 5.25 seconds post-intervention. These changes suggest a small increase in sprint time, implying a slight decrease in sprint performance for both groups over the study period.
+Descriptive statistics for sprint time before and after the intervention are summarized in Table 1. The control group had a mean day 0 sprint time of 19.31 ± 3.89 seconds, which increased slightly to a mean of 19.82 ± 4.15 seconds after 14 days. Similarly, the keto group had an initial sprint time of 20.02 ± 5.14 seconds, rising to 20.30 ± 5.25 seconds post-intervention. These changes suggest a small increase in sprint time, implying a slight decrease in sprint performance for both groups over the study period.
 
 ```{r}
-# Boxplot: Sprint Speed Distribution Before & After
+# Boxplot: Sprint Time Distribution Before & After
 ggplot(island_data, aes(x = treatment, y = day_0_sprint, fill = treatment)) +
   geom_boxplot(alpha = 0.6) +
-  labs(title = "Figure 2: Boxplot of Sprint Speed Before (Day 0) for Control and Keto Groups", x = "Group", y = "Sprint Speed (s)") +
+  labs(title = "Figure 2: Boxplot of Sprint Time Before (Day 0) for 
+       Control and Keto Groups", x = "Group", y = "Sprint Time (s)") +
   theme_minimal() +
   scale_fill_manual(name = "Treatment", values = c("Control" = "slategray2", "Keto" = "lightseagreen"))
 
 ggplot(island_data, aes(x = treatment, y = day_14_sprint, fill = treatment)) +
   geom_boxplot(alpha = 0.6) +
-  labs(title = "Figure 2: Boxplot of Sprint Speed After (Day 14) for Control and Keto Groups", x = "Group", y = "Sprint Speed (s)") +
+  labs(title = "Figure 2: Boxplot of Sprint Time After (Day 14) for 
+       Control and Keto Groups", x = "Group", y = "Sprint Time (s)") +
   theme_minimal() +
-  scale_fill_manual(name = "Treatment", values = c("Control" = "slategray2", "Keto" = "lightseagreen"))
+  scale_fill_manual(name = "Treatment", 
+  values = c("Control" = "slategray2", "Keto" = "lightseagreen"))
 ```
-Figure 1 and Figure 2 display boxplots of sprint speed distribution at baseline (Day 0) and post-intervention (Day 14). The control group shows a similar distribution before and after the intervention, with slight increases in median sprint time. The keto group exhibits greater variability in both conditions, with the median sprint time remaining close to the baseline measurement, indicating minimal impact of the diet on performance. These visualizations underscore that neither group showed substantial improvements in sprint performance after the two-week period.
+Figure 1 and Figure 2 display boxplots of sprint time distribution at baseline (Day 0) and post-intervention (Day 14). The control group shows a similar distribution before and after the intervention, with slight increases in median sprint time. The keto group exhibits greater variability in both conditions, with the median sprint time remaining close to the baseline measurement, indicating minimal impact of the diet on performance. These visualizations underscore that neither group showed substantial improvements in sprint performance after the two-week period.
 
 ```{r}
 # Bar Chart with 95% Confidence Intervals
 ggplot(summary_stats, aes(x = treatment, y = Mean_Pre, fill = treatment)) +
   geom_bar(stat = "identity", alpha = 0.6) +
   geom_errorbar(aes(ymin = CI_Lower_Pre, ymax = CI_Upper_Pre), width = 0.2) +
-  labs(title = "Figure 3. Mean Sprint Speed Before (Day 0) with 95% CI", x = "Group", y = "Sprint Speed (s)") +
+  labs(title = "Figure 3. Mean Sprint Time Before (Day 0) with 95% CI", 
+  x = "Group", y = "Sprint Time (s)") +
   theme_minimal() +
   scale_fill_manual(name = "Treatment", values = c("Control" = "slategray2", "Keto" = "lightseagreen"))
 
 ggplot(summary_stats, aes(x = treatment, y = Mean_Post, fill = treatment)) +
   geom_bar(stat = "identity", alpha = 0.6) +
   geom_errorbar(aes(ymin = CI_Lower_Post, ymax = CI_Upper_Post), width = 0.2) +
-  labs(title = "Figure 4. Mean Sprint Speed After (Day 14) with 95% CI", x = "Group", y = "Sprint Speed (s)") +
+  labs(title = "Figure 4. Mean Sprint Time After (Day 14) with 95% CI", 
+  x = "Group", y = "Sprint Time (s)") +
   theme_minimal() +
-  scale_fill_manual(name = "Treatment", values = c("Control" = "slategray2", "Keto" = "lightseagreen"))
+  scale_fill_manual(name = "Treatment", 
+  values = c("Control" = "slategray2", 
+             "Keto" = "lightseagreen"))
 ```
-Then to further assess changes, bar plots with 95% confidence intervals (CIs) for mean sprint speeds pre- and post-intervention are presented in Figures 3 and 4. The overlap in confidence intervals suggests that the mean sprint speed changes were not statistically significant, reinforcing the lack of a meaningful effect from the intervention.
+Then to further assess changes, bar plots with 95% confidence intervals (CIs) for mean sprint times pre- and post-intervention are presented in Figures 3 and 4. The overlap in confidence intervals suggests that the mean sprint time changes were not statistically significant, reinforcing the lack of a meaningful effect from the intervention.
 
 ```{r}
 # One-sided t-test for Control Group (Day 0 vs Day 14)
@@ -132,7 +141,7 @@ keto_diff <- keto_data$day_14_sprint - keto_data$day_0_sprint
 keto_t_test <- t.test(keto_diff, alternative = "two.sided")
 print(keto_t_test)
 
-# Calculate the change in sprint speed (Day 14 - Day 0)
+# Calculate the change in sprint time (Day 14 - Day 0)
 island_data$change_sprint <- island_data$day_14_sprint - island_data$day_0_sprint
 
 # Independent t-test between Control and Keto Groups
@@ -141,7 +150,8 @@ print(treatment_t_test)
 
 # Create a summary table for test results
 test_results <- data.frame(
-  Test = c("One-sided t-test (Control)", "One-sided t-test (Keto)", "Independent t-test (Between Groups)"),
+  Test = c("One-sided t-test (Control)", 
+           "One-sided t-test (Keto)", "Independent t-test (Between Groups)"),
   p_value = c(control_t_test$p.value, keto_t_test$p.value, treatment_t_test$p.value),
   Mean_Difference = c(mean(control_diff), mean(keto_diff), mean(island_data$change_sprint)),
   Direction_of_Change = c(
@@ -156,11 +166,11 @@ print(test_results)
 ```
 *Table 2.Results of One-sided and Independent t-tests on Sprint Speed Changes*
 
-Moreover, statistical analyses were conducted using paired and independent t-tests. The one-sided t-test for the control group yielded a significant result (p = 0.0014), indicating a meaningful change in sprint speed. However, this change was an increase in sprint time rather than an improvement in performance. In contrast, the one-sided t-test for the keto group was not significant (p = 0.097), suggesting no meaningful change in sprint performance. The independent t-test comparing sprint time differences between groups also resulted in a non-significant finding (p = 0.292), indicating no substantial difference between the control and keto groups in terms of sprint performance changes.
+Moreover, statistical analyses were conducted using paired and independent t-tests. The one-sided t-test for the control group yielded a significant result (p = 0.0014), indicating a meaningful change in sprint time. However, this change was an increase in sprint time rather than an improvement in performance. In contrast, the one-sided t-test for the keto group was not significant (p = 0.097), suggesting no meaningful change in sprint performance. The independent t-test comparing sprint time differences between groups also resulted in a non-significant finding (p = 0.292), indicating no substantial difference between the control and keto groups in terms of sprint performance changes.
 
 The validity of these inference procedures was assessed by checking assumptions of normality, homogeneity of variance, and independence. Given the relatively large sample size (n = 27 for control, n = 53 for keto), the Central Limit Theorem supports the assumption of normality. Boxplots further suggest that the distributions do not exhibit severe skewness or extreme outliers. Homogeneity of variance was reasonably satisfied based on the similar spread observed in the boxplots. Additionally, the independence condition for the independent t-test was met, as the control and keto groups consisted of distinct, non-overlapping participants, ensuring no relationship between observations in the two groups.
 
-Overall, the results suggest that a two-week ketogenic diet did not have a meaningful impact on sprint speed. The observed changes in sprint performance were minimal and did not favor either group. These findings indicate that short-term dietary changes alone may not be sufficient to elicit measurable improvements in sprint performance. Future research could explore longer interventions or different exercise modalities to assess whether more substantial effects on sprint performance can be achieved. Additionally, studies investigating other factors such as training volume or individual response to diet might provide further insight into how diet influences sprint performance.
+Overall, the results suggest that a two-week ketogenic diet did not have a meaningful impact on sprint time. The observed changes in sprint performance were minimal and did not favor either group. These findings indicate that short-term dietary changes alone may not be sufficient to elicit measurable improvements in sprint performance. Future research could explore longer interventions or different exercise modalities to assess whether more substantial effects on sprint performance can be achieved. Additionally, studies investigating other factors such as training volume or individual response to diet might provide further insight into how diet influences sprint performance.
 
 **Variable 2 - Respiratory Rate**
 ```{r}
@@ -195,7 +205,9 @@ The descriptive summary revealed similar baseline respiratory rates across both 
 
 ggplot(island_data, aes(x=treatment, y= day_0_resp, fill= treatment)) +
   geom_boxplot(alpha=0.6)+
-  labs(title = "Figure 5. Boxplot of Respiratory Rate before the ketogenic diet intervention (Day 0) for both control and keto groups", x= "Group", y= "Respiratory Rate(breath/min)")+
+  labs(title = "Figure 5. Boxplot of Respiratory Rate
+before the ketogenic diet intervention (Day 0) for 
+both control and keto groups", x= "Group", y= "Respiratory Rate(breath/min)")+
   theme_minimal()+
   scale_fill_manual(name= "Treatment", values = c("Control" = "grey", "Keto" = "lightblue"))
 ```
@@ -204,7 +216,9 @@ The baseline distributions are highly comparable in Fig 5. The medians for both 
 ```{r}
 ggplot(island_data, aes(x=treatment, y= day_14_resp, fill= treatment)) +
   geom_boxplot(alpha=0.6)+
-  labs(title = "Figure 6: Boxplot of Respiratory Rate after the ketogenic diet intervention (Day 14) for both control and keto groups", x= "Group", y= "Respiratory Rate(breath/min)")+
+  labs(title = "Figure 6: Boxplot of Respiratory Rate after 
+the ketogenic diet intervention (Day 14) for 
+both control and keto groups", x= "Group", y= "Respiratory Rate(breath/min)")+
   theme_minimal()+
   scale_fill_manual(name= "Treatment", values = c("Control" = "grey", "Keto" = "lightblue"))
 
@@ -222,7 +236,8 @@ ggplot(summary_bar, aes(x=Day, y=Mean, fill=treatment)) +
   geom_bar(stat="identity", position=position_dodge(), width=0.6) +
   geom_errorbar(aes(ymin=LowerCI, ymax=UpperCI), 
                 position=position_dodge(0.6), width=0.2) +
-  labs(title="Figure 7: Mean Respiratory Rate Before and After ketogenic diet by Group (±95% CI)", 
+  labs(title="Figure 7: Mean Respiratory Rate Before and After ketogenic diet by Group 
+(±95% CI)", 
        x="Day", y="Respiratory Rate (breaths/min)", fill="Group") +
   theme_minimal()
 
@@ -248,7 +263,9 @@ island_data$change_resp <- island_data$day_14_resp - island_data$day_0_resp
 treatment_t_test <- t.test(change_resp ~ treatment, data = island_data, alternative = "two.sided")
 
 test_results <- data.frame(
-  Test = c("One-sided t-test (Control)", "One-sided t-test (Keto)", "Independent t-test (Between Groups)"),
+  Test = c("One-sided t-test (Control)", 
+"One-sided t-test (Keto)", 
+"Independent t-test (Between Groups)"),
   p_val = c(control_t_test$p.value, keto_t_test$p.value, treatment_t_test$p.value),
   Mean_Diff = c(mean(control_diff, na.rm = TRUE), 
                       mean(keto_diff, na.rm = TRUE), 
