@@ -164,7 +164,7 @@ test_results <- data.frame(
 # Print the summary table
 print(test_results)
 ```
-*Table 2.Results of One-sided and Independent t-tests on Sprint Speed Changes*
+*Table 2.Results of One-sided and Independent t-tests on Sprint Time Changes*
 
 Moreover, statistical analyses were conducted using paired and independent t-tests. The one-sided t-test for the control group yielded a significant result (p = 0.0014), indicating a meaningful change in sprint time. However, this change was an increase in sprint time rather than an improvement in performance. In contrast, the one-sided t-test for the keto group was not significant (p = 0.097), suggesting no meaningful change in sprint performance. The independent t-test comparing sprint time differences between groups also resulted in a non-significant finding (p = 0.292), indicating no substantial difference between the control and keto groups in terms of sprint performance changes.
 
