@@ -1,0 +1,488 @@
+---
+title: "Exploring the impacts of the “fad” ketogenic diet on energy expenditure during anaerobic exercise"
+author: "Janet Cieslewicz, Jack Heikkila, Kuan-Ching Lin, Nancy Zia"
+output: pdf_document
+date: "2025-04-01"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+```
+## Author Contributions:
+JC, JH, KL, NZ - Acquisition of data, conceptualization of research goals, investigation
+
+JC - Literature review, original draft preparation, review and editing, methodology
+
+JH - Data curation, conceptualization, methodology, investigation
+
+KL - Formal data analysis, data visualization, validation of results, data curation
+
+NZ - Methodology, data curation, visualization, and analysis
+
+## Introduction
+The ketogenic diet, characterized by high lipid intake and low carbohydrate intake, has gained popularity in the public sphere as a weight loss solution. However, the scientific community has raised concerns about possible health risks associated with the ketogenic diet (Anderson, 2023). On a physiological basis, decreased carbohydrate intake promotes the metabolism of lipid components found in adipose tissue as an alternative fuel source (Basolo et al., 2022). In spite of losing weight, many individuals who take part in the ketogenic diet report side effects such as muscle cramps, impaired exercise performance, and weakness (Anderson, 2023), suggesting that the ketogenic diet may be associated with some adverse physiological effects in terms of metabolic efficiency. 
+
+The impacts of the ketogenic diet on metabolic efficiency were explored in Burke et al. (2020), which found an average increase in oxygen cost (the amount of oxygen needed for the output of power) during aerobic exercise among race-walkers who had partaken in a 25-day ketogenic diet. Overall, Burke et al. (2020) found that athletes on a ketogenic diet experienced a decline in race-walking performance. While this study outlined the consequences of the ketogenic diet on aerobic exercise (i.e. exercise demanding oxidative metabolism) performance, it only considered athletes and did not allow for generalization to a broader population. Additionally, the activity of race-walking involves the use of both oxidative and glycolytic metabolic pathways, meaning that the study cannot be used to make conclusions on how anaerobic exercise alone is affected by the ketogenic diet. 
+
+Given the immense popularity of the ketogenic diet, it is important to develop a greater understanding of the potential downsides of relying on lipids for energy. The objective of this study was to explore the impacts of a 14-day ketogenic diet on anaerobic exercise (i.e. exercise demanding glycolytic metabolism) performance and recovery. We hypothesized that a 14-day ketogenic diet would decrease anaerobic exercise performance and hinder recovery following such exercise. We did not find any significant differences in anaerobic exercise performance or recovery between those who had taken part in the ketogenic diet and those who had not. These findings imply that the ketogenic diet may provide suitable fuels for the metabolic processes involved in anaerobic exercise relative to those provided by typical balanced diets.
+
+## Materials and Methods
+
+A total of 80 participants were selected based on the following inclusion criteria: (1) between 18 and 35 years old, (2) no current smoking habits, (3) no current viral infection. The selected age range reflects university-aged students and young adults, the demographic among whom “fad” diets promoting weight loss are particularly popular (D'Agostino, 2019). Participants were selected using a cluster sampling approach on the online platform “The Islands.” We randomly selected 17 localities, from which residences were selected at random. To maintain a representative sample, no more than 5 individuals from each locality were selected. From each selected residence, one individual fulfilling the study inclusion criteria was asked to provide informed consent and was assigned to either the “control” or “keto” treatment group at random. All random selections and assignments were completed using a random number generator.
+
+For all participants, data were collected on day 0 (pre-intervention) and day 14 (post-intervention) regarding time elapsed during a 100-meter sprint (in seconds), post-sprint respiratory rate (in breaths per minute), post-sprint skin coloration (measured on an ordinal scale from pale to flushed), and post-sprint vocal pitch/loudness (measured on an ordinal scale from low to high). Sprint time was used to reflect the efficiency of metabolic energy production, with faster times indicating higher efficiency (Sandford et al., 2021). Respiratory rate was used to reflect the metabolic usage of oxygen, with increased respiratory rate indicating increased activity of aerobic metabolic pathways (Rubini et al., 2015). Skin coloration and vocal pitch/loudness were used to reflect exertion and efficiency of recovery post-sprint (Wong & Hollowed, 2016; van Mersbergen et al., 2021).
+ 
+All statistical analyses and data visualizations were conducted and generated in RStudio version 4.3.2 utilizing the core Tidyverse packages and all hypothesis tests were conducted at a set significance level of 5% ($\alpha$ = 0.05).
+
+Variations of t-tests were used to evaluate changes in 100-meter sprint time and post-sprint respiratory rate within and between the control and keto groups from Day 0 to Day 14. Assessments confirming normality are referenced in Appendix A. One sample t-tests revealed a significant change in mean sprint time in the control group only, while no significant change was observed in the keto group (control: p < 0.05, t = 3.580; keto: p = 0.097, t = 1.691). These findings were also supported by the 95% t* confidence intervals(control: 0.218, 0.805; keto: -0.052, 0.611).  An independent t-test showed no significant difference in sprint time changes between groups (p = 0.292; t = 1.062; 95% CI: -0.203, 0.667). Similarly, no significant changes in respiratory rate were found within (control: p = 0.462, t = -0.747; keto: p = 0.531, t = -0.631) or between (p = 0.755; t = -0.314; 95% CI: -3.100, 2.264) groups as confirmed by the overlapping confidence intervals (control: -3.197, 1.493; keto: -1.815, 0.947). 
+
+Upon inspection of the collected data regarding post-sprint skin coloration and vocal pitch/loudness, it was determined that no statistical inference procedures would be necessary, as no changes occurred relating to these variables in any of the participants between days 0 and 14.
+
+## Result
+```{r}
+island_data <- read_csv("STA288 Group Project Data.csv")
+glimpse(island_data)
+```
+**Variable 1 - Sprint Time**
+```{r}
+# Compute descriptive statistics with 95% Confidence Intervals
+summary_stats <- island_data %>%
+  group_by(treatment) %>%
+  summarise(
+    Mean_Pre = mean(day_0_sprint, na.rm = TRUE),
+    SD_Pre = sd(day_0_sprint, na.rm = TRUE),
+    N_Pre = n(),
+    SE_Pre = SD_Pre / sqrt(N_Pre),
+    CI_Lower_Pre = Mean_Pre - qt(0.975, df = N_Pre - 1) * SE_Pre,
+    CI_Upper_Pre = Mean_Pre + qt(0.975, df = N_Pre - 1) * SE_Pre,
+    
+    Mean_Post = mean(day_14_sprint, na.rm = TRUE),
+    SD_Post = sd(day_14_sprint, na.rm = TRUE),
+    N_Post = n(),
+    SE_Post = SD_Post / sqrt(N_Post),
+    CI_Lower_Post = Mean_Post - qt(0.975, df = N_Post - 1) * (SD_Post / sqrt(N_Post)),
+    CI_Upper_Post = Mean_Post + qt(0.975, df = N_Post - 1) * (SD_Post / sqrt(N_Post))
+  )
+
+# Calculate the mean difference in sprint times (Post - Pre) for each group
+summary_stats <- summary_stats %>%
+  mutate(
+    Mean_Diff = Mean_Post - Mean_Pre,
+    SD_Diff = sqrt((SD_Pre^2 / N_Pre) + (SD_Post^2 / N_Post)),  # Combined standard deviation for difference
+    SE_Diff = SD_Diff / sqrt(N_Pre),  # Standard error for the difference
+    CI_Lower_Diff = Mean_Diff - qt(0.975, df = N_Pre - 1) * SE_Diff,
+    CI_Upper_Diff = Mean_Diff + qt(0.975, df = N_Pre - 1) * SE_Diff
+  )
+
+# Print the updated summary table with the difference in sprint times and their confidence intervals
+print(summary_stats)
+```
+*Table 1. Descriptive statistics for sprint speed at days 0 and 14 for the control and keto groups. Values represent the mean, standard deviation (SD), sample size (N), and 95% confidence intervals (CI).*
+
+Descriptive statistics for sprint speed before and after the intervention are summarized in Table 1. The control group had a mean day 0 sprint time of 19.31 ± 3.89 seconds, which increased slightly to a mean of 19.82 ± 4.15 seconds after 14 days. Similarly, the keto group had an initial sprint speed of 20.02 ± 5.14 seconds, rising to 20.30 ± 5.25 seconds post-intervention. These changes suggest a small increase in sprint time, implying a slight decrease in sprint performance for both groups over the study period.
+
+```{r}
+# Boxplot: Sprint Speed Distribution Before & After
+ggplot(island_data, aes(x = treatment, y = day_0_sprint, fill = treatment)) +
+  geom_boxplot(alpha = 0.6) +
+  labs(title = "Figure 2: Boxplot of Sprint Speed Before (Day 0) for Control and Keto Groups", x = "Group", y = "Sprint Speed (s)") +
+  theme_minimal() +
+  scale_fill_manual(name = "Treatment", values = c("Control" = "slategray2", "Keto" = "lightseagreen"))
+
+ggplot(island_data, aes(x = treatment, y = day_14_sprint, fill = treatment)) +
+  geom_boxplot(alpha = 0.6) +
+  labs(title = "Figure 2: Boxplot of Sprint Speed After (Day 14) for Control and Keto Groups", x = "Group", y = "Sprint Speed (s)") +
+  theme_minimal() +
+  scale_fill_manual(name = "Treatment", values = c("Control" = "slategray2", "Keto" = "lightseagreen"))
+```
+Figure 1 and Figure 2 display boxplots of sprint speed distribution at baseline (Day 0) and post-intervention (Day 14). The control group shows a similar distribution before and after the intervention, with slight increases in median sprint time. The keto group exhibits greater variability in both conditions, with the median sprint time remaining close to the baseline measurement, indicating minimal impact of the diet on performance. These visualizations underscore that neither group showed substantial improvements in sprint performance after the two-week period.
+
+```{r}
+# Bar Chart with 95% Confidence Intervals
+ggplot(summary_stats, aes(x = treatment, y = Mean_Pre, fill = treatment)) +
+  geom_bar(stat = "identity", alpha = 0.6) +
+  geom_errorbar(aes(ymin = CI_Lower_Pre, ymax = CI_Upper_Pre), width = 0.2) +
+  labs(title = "Figure 3. Mean Sprint Speed Before (Day 0) with 95% CI", x = "Group", y = "Sprint Speed (s)") +
+  theme_minimal() +
+  scale_fill_manual(name = "Treatment", values = c("Control" = "slategray2", "Keto" = "lightseagreen"))
+
+ggplot(summary_stats, aes(x = treatment, y = Mean_Post, fill = treatment)) +
+  geom_bar(stat = "identity", alpha = 0.6) +
+  geom_errorbar(aes(ymin = CI_Lower_Post, ymax = CI_Upper_Post), width = 0.2) +
+  labs(title = "Figure 4. Mean Sprint Speed After (Day 14) with 95% CI", x = "Group", y = "Sprint Speed (s)") +
+  theme_minimal() +
+  scale_fill_manual(name = "Treatment", values = c("Control" = "slategray2", "Keto" = "lightseagreen"))
+```
+Then to further assess changes, bar plots with 95% confidence intervals (CIs) for mean sprint speeds pre- and post-intervention are presented in Figures 3 and 4. The overlap in confidence intervals suggests that the mean sprint speed changes were not statistically significant, reinforcing the lack of a meaningful effect from the intervention.
+
+```{r}
+# One-sided t-test for Control Group (Day 0 vs Day 14)
+control_data <- island_data %>% filter(treatment == "Control")
+control_diff <- control_data$day_14_sprint - control_data$day_0_sprint
+control_t_test <- t.test(control_diff, alternative = "two.sided")
+print(control_t_test)
+
+# One-sided t-test for Keto Group (Day 0 vs Day 14)
+keto_data <- island_data %>% filter(treatment == "Keto")
+keto_diff <- keto_data$day_14_sprint - keto_data$day_0_sprint
+keto_t_test <- t.test(keto_diff, alternative = "two.sided")
+print(keto_t_test)
+
+# Calculate the change in sprint speed (Day 14 - Day 0)
+island_data$change_sprint <- island_data$day_14_sprint - island_data$day_0_sprint
+
+# Independent t-test between Control and Keto Groups
+treatment_t_test <- t.test(change_sprint ~ treatment, data = island_data, alternative = "two.sided")
+print(treatment_t_test)
+
+# Create a summary table for test results
+test_results <- data.frame(
+  Test = c("One-sided t-test (Control)", "One-sided t-test (Keto)", "Independent t-test (Between Groups)"),
+  p_value = c(control_t_test$p.value, keto_t_test$p.value, treatment_t_test$p.value),
+  Mean_Difference = c(mean(control_diff), mean(keto_diff), mean(island_data$change_sprint)),
+  Direction_of_Change = c(
+    ifelse(control_t_test$p.value < 0.05, "Significant", "Not significant"),
+    ifelse(keto_t_test$p.value < 0.05, "Significant", "Not significant"),
+    ifelse(treatment_t_test$p.value < 0.05, "Significant", "Not significant")
+  )
+)
+
+# Print the summary table
+print(test_results)
+```
+*Table 2.Results of One-sided and Independent t-tests on Sprint Speed Changes*
+
+Moreover, statistical analyses were conducted using paired and independent t-tests. The one-sided t-test for the control group yielded a significant result (p = 0.0014), indicating a meaningful change in sprint speed. However, this change was an increase in sprint time rather than an improvement in performance. In contrast, the one-sided t-test for the keto group was not significant (p = 0.097), suggesting no meaningful change in sprint performance. The independent t-test comparing sprint time differences between groups also resulted in a non-significant finding (p = 0.292), indicating no substantial difference between the control and keto groups in terms of sprint performance changes.
+
+The validity of these inference procedures was assessed by checking assumptions of normality, homogeneity of variance, and independence. Given the relatively large sample size (n = 27 for control, n = 53 for keto), the Central Limit Theorem supports the assumption of normality. Boxplots further suggest that the distributions do not exhibit severe skewness or extreme outliers. Homogeneity of variance was reasonably satisfied based on the similar spread observed in the boxplots. Additionally, the independence condition for the independent t-test was met, as the control and keto groups consisted of distinct, non-overlapping participants, ensuring no relationship between observations in the two groups.
+
+Overall, the results suggest that a two-week ketogenic diet did not have a meaningful impact on sprint speed. The observed changes in sprint performance were minimal and did not favor either group. These findings indicate that short-term dietary changes alone may not be sufficient to elicit measurable improvements in sprint performance. Future research could explore longer interventions or different exercise modalities to assess whether more substantial effects on sprint performance can be achieved. Additionally, studies investigating other factors such as training volume or individual response to diet might provide further insight into how diet influences sprint performance.
+
+**Variable 2 - Respiratory Rate**
+```{r}
+# Descriptive data summary for Respiratory Rate
+descriptive_stats <- island_data %>%
+  group_by(treatment) %>%
+  summarise(
+    n_data=n(),
+    
+    Mean_0=mean(day_0_resp, na.rm = TRUE),
+    SD_0=sd(day_0_resp, na.rm = TRUE),
+    SE_0=SD_0/sqrt(n_data),
+    LowerCI_0=Mean_0 - qt(0.975, df = n_data - 1) * SE_0,
+    UpperCI_0= Mean_0 + qt(0.975, df = n_data - 1) * SE_0,
+      
+    Mean_14= mean(day_14_resp, na.rm = TRUE),
+    SD_14= sd(day_14_resp, na.rm = TRUE),
+    SE_14= SD_14/sqrt(n_data),
+    LowerCI_14= Mean_14 - qt(0.975, df = n_data - 1) * SE_14,
+    UpperCI_14= Mean_14 + qt(0.975, df = n_data - 1) * SE_14
+  ) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 3)))
+
+print(descriptive_stats)
+```
+*Table 3: Descriptive statistics for respiratory rate at days 0 and 14 for both keto and control groups. Mean, standard deviation (SD), standard error (SE), and 95% confidence intervals, including both upper and lower limits,  are shown.*
+
+The descriptive summary revealed similar baseline respiratory rates across both groups. On day 0, the control group had a mean respiratory rate of 31.200 breaths/min (SD = 3.520), while the Keto group averaged 31.113 breaths/min (SD = 4.010). After 14 days, the Control group's mean decreased slightly to 30.296 (SD = 4.949), and the Keto group to 30.679 (SD = 4.132). The 95% confidence intervals also showed considerable overlap: Control: Day 0 CI [29.846, 32.554], Day 14 CI [28.336, 32.256]; Keto: Day 0 CI [30.011, 32.215], Day 14 CI [29.544, 31.813]. These statistics suggest no meaningful change in average respiratory rate in either group over the intervention period.
+
+```{r}
+# Graphical summary for Respiratory Rate
+
+ggplot(island_data, aes(x=treatment, y= day_0_resp, fill= treatment)) +
+  geom_boxplot(alpha=0.6)+
+  labs(title = "Figure 5. Boxplot of Respiratory Rate before the ketogenic diet intervention (Day 0) for both control and keto groups", x= "Group", y= "Respiratory Rate(breath/min)")+
+  theme_minimal()+
+  scale_fill_manual(name= "Treatment", values = c("Control" = "grey", "Keto" = "lightblue"))
+```
+The baseline distributions are highly comparable in Fig 5. The medians for both groups are centered near 31 breaths/min, with the interquartile ranges spanning roughly 28 to 34. This suggests similar starting points for both groups in terms of post-sprint respiratory rate. Both groups also exhibit a small number of lower outliers, but these are symmetrically balanced and not extreme enough to skew the central tendency.
+
+```{r}
+ggplot(island_data, aes(x=treatment, y= day_14_resp, fill= treatment)) +
+  geom_boxplot(alpha=0.6)+
+  labs(title = "Figure 6: Boxplot of Respiratory Rate after the ketogenic diet intervention (Day 14) for both control and keto groups", x= "Group", y= "Respiratory Rate(breath/min)")+
+  theme_minimal()+
+  scale_fill_manual(name= "Treatment", values = c("Control" = "grey", "Keto" = "lightblue"))
+
+```
+In Fig 6 the post-intervention data has a minimal visual change. The Control group maintains a similar distribution, with the median decreasing slightly. The Keto group also shows a subtle drop in the median but more notably exhibits a slightly narrower interquartile range, suggesting reduced variability. This narrowing could hint at more consistent responses to the ketogenic diet; however, this observation remains hypothetical since it was not supported by statistical significance in the t-tests performed later.
+```{r}
+
+summary_bar <- descriptive_stats %>%
+  select(treatment, Mean_0, LowerCI_0, UpperCI_0, Mean_14, LowerCI_14, UpperCI_14) %>%
+  pivot_longer(cols = -treatment, names_to = "variable", values_to = "value") %>%
+  separate(variable, into = c("Metric", "Day"), sep = "_") %>%
+  pivot_wider(names_from = Metric, values_from = value)
+
+ggplot(summary_bar, aes(x=Day, y=Mean, fill=treatment)) +
+  geom_bar(stat="identity", position=position_dodge(), width=0.6) +
+  geom_errorbar(aes(ymin=LowerCI, ymax=UpperCI), 
+                position=position_dodge(0.6), width=0.2) +
+  labs(title="Figure 7: Mean Respiratory Rate Before and After ketogenic diet by Group (±95% CI)", 
+       x="Day", y="Respiratory Rate (breaths/min)", fill="Group") +
+  theme_minimal()
+
+```
+On day 0, the Control group recorded a mean respiratory rate of approximately 31.2 breaths/min, while the Keto group had a nearly identical mean of 31.1 breaths/min. After the 14-day intervention, both groups exhibited slight reductions in respiratory rate: the Control group decreased to 30.3 breaths/min, and the Keto group to 30.7 breaths/min. These changes are visually minimal, and more importantly, their 95% confidence intervals show substantial overlap—indicating that the small shifts are not statistically distinguishable from random variation.
+
+The error bars also highlight that the standard errors remain low, especially in the Keto group post-intervention, where the interval is narrower. This suggests lower within-group variability, but not to an extent that it alters the overall interpretation.
+
+```{r}
+#Inference Test - One-sided T-tests
+
+control_data <- island_data %>% filter(treatment == "Control")
+keto_data <- island_data %>% filter(treatment == "Keto")
+
+control_diff <- control_data$day_14_resp - control_data$day_0_resp
+keto_diff <- keto_data$day_14_resp -  keto_data$day_0_resp
+
+control_t_test <- t.test(control_diff, alternative = "two.sided")
+keto_t_test <- t.test(keto_diff, alternative = "two.sided")
+
+island_data$change_resp <- island_data$day_14_resp - island_data$day_0_resp
+
+treatment_t_test <- t.test(change_resp ~ treatment, data = island_data, alternative = "two.sided")
+
+test_results <- data.frame(
+  Test = c("One-sided t-test (Control)", "One-sided t-test (Keto)", "Independent t-test (Between Groups)"),
+  p_val = c(control_t_test$p.value, keto_t_test$p.value, treatment_t_test$p.value),
+  Mean_Diff = c(mean(control_diff, na.rm = TRUE), 
+                      mean(keto_diff, na.rm = TRUE), 
+                      mean(island_data$change_resp[island_data$treatment == "Keto"], na.rm = TRUE) - 
+                      mean(island_data$change_resp[island_data$treatment == "Control"], na.rm = TRUE)),
+  Result = c(
+    ifelse(control_t_test$p.value < 0.05, "Significant", "Not significant"),
+    ifelse(keto_t_test$p.value < 0.05, "Significant", "Not significant"),
+    ifelse(treatment_t_test$p.value < 0.05, "Significant", "Not significant")
+  )
+)
+
+print(test_results)
+
+```
+*Table 4: Results of Paired and Independent t-tests on Respiratory Rate Changes*
+
+To formally assess whether the ketogenic diet influenced respiratory rate, both within-group and between-group hypothesis tests were conducted. 
+
+For within-group analysis, one-sided t-tests evaluated changes in respiratory rate from Day 0 to Day 14 for each treatment group. In the Control group, the mean change was –0.852 breaths/min, i.e., a slight reduction, with a p-value of 0.462. In the Keto group, the mean change was –0.434 breaths/min, with a p-value of 0.531. Both p-values are well above the conventional significance level of 0.05, indicating that these changes are not statistically significant and could easily be attributed to random variation. In other words, we fail to reject the null hypothesis (H0: mean_Day0 = mean_Day14) for both groups, concluding there is no sufficient evidence of a meaningful change in respiratory rate over time. 
+
+To evaluate whether the ketogenic diet produced a different effect than no intervention, an independent t-test was conducted on the difference scores (mean_diff = Day14 – Day0). The mean difference between the Keto and Control groups was +0.418 breaths/min, suggesting a slightly smaller drop in respiratory rate in the Keto group. However, this difference was not statistically significant (p = 0.755), and again we fail to reject the null hypothesis (H0: mean_diff_Keto = mean_diff_Control).
+
+**Variable 3 - Skin Coloration**
+None of the participants in the study showed any signs of altered coloration after performing a 100m run, regardless of the treatment group they were assigned to. This suggests that a 14-day ketogenic diet had little impact on the effort it takes one's body to meet the energy needs associated with anaerobic exercise. In other words, the energy requirements met by beta-oxidation (acquiring energy through fat breakdown) and glycogen breakdown are achieved with similar levels of epinephrine. A ketogenic diet does not appear to have any impact on the effort it takes the body to meet its energy requirements when partaking in anaerobic exercise.
+
+**Variable 4 - Vocal Pitch/Loudness**
+As a measure of recovery, post-sprint vocal pitch and loudness were assessed in each participant using perceptual voice evaluation techniques. Although a small proportion of participants in each treatment group exhibited “high” vocal pitch on day 0, there were no changes observed (i.e. those who exhibited “high” vocal pitch on day 0 were also observed to have “high” vocal pitch on day 14). Tables 5, 6, and 7 contain information relating to observed vocal pitch and changes in vocal pitch by treatment group. All participants were observed to have “normal” vocal loudness on days 0 and 14, thus no changes were observed (supplementary tables containing information relating to observed vocal loudness are included in Appendix A).
+
+```{r}
+# Create numerical variable for day 0 vocal pitch, day 14 vocal pitch,  numerical variable for change in vocal pitch, and categorical variable for change in vocal pitch.
+
+data <- island_data %>%
+  mutate(
+    day_0_pitch_num = ifelse(day_0_pitch == "Normal", 0, 1),
+    day_14_pitch_num = ifelse(day_14_pitch == "Normal", 0, 1),
+    pitch_change_num = day_14_pitch_num - day_0_pitch_num,
+    pitch_change = ifelse(pitch_change_num > 0, "Yes", "No")
+  )
+
+# Generate two-way table for day 0 vocal pitch across groups.
+table(data$treatment,data$day_0_pitch)
+```
+*Table 5: counts of measured day 0 post-sprint vocal pitch by treatment group*
+
+Among the 27 participants in the control group, 2 ($\hat{p}$ = 0.074) exhibited high vocal pitch post-sprint on day 0. Among the 53 participants in the keto group, 7 ($\hat{p}$ = 0.132) exhibited high vocal pitch post-sprint on day 0.
+```{r}
+# Generate two-way table for day 14 vocal pitch across groups.
+table(data$treatment,data$day_14_pitch)
+```
+*Table 6: counts of measured day 14 post-sprint vocal pitch by treatment group*
+
+Among the 27 participants in the control group, 2 ($\hat{p}$ = 0.074) exhibited high vocal pitch post-sprint on day 14. Among the 53 participants in the keto group, 7 ($\hat{p}$ = 0.132) exhibited high vocal pitch post-sprint on day 14. No study participants exhibited individual changes in vocal pitch between days 0 and 14.
+```{r}
+# Generate two-way table for change in vocal pitch across groups.
+table(data$treatment,data$pitch_change)
+```
+*Table 7: counts of change in post-sprint vocal pitch between days 0 and 14 by treatment group*
+
+Across all study participants, no change in post-sprint vocal pitch was observed between days 0 and 14.
+
+## Conclusion
+
+This study sought to explore the consequences of a ketogenic diet on one's ability to partake in anaerobic exercise, measuring performance and physical stress. Statistical analysis yielded no significant decline in sprint performance between those partaking in a ketogenic diet and the control group (p = 0.292). Analysis on respiratory rate post-sprint between control and treatment groups also yielded insignificant results (p = 0.755). Among all participants, no changes were observed in post-sprint skin coloration or vocal pitch/loudness between days 0 and 14. The results from this study lead us to conclude that shifting to the use of lipid stores for energy (as experienced in the ketogenic diet) does not significantly affect performance in or recovery following anaerobic 
+
+## Discussion
+
+**Key Findings**
+
+This study found that individuals who had participated in a 14-day ketogenic diet experienced no significant change in performance or recovery while performing anaerobic exercise. These findings imply that the increased use of lipid stores as opposed to carbohydrates for energy do not noticeably impact an individual's ability to perform physical activities that are primarily reliant on glycolytic metabolism. 
+
+One of the notable results of the study was a significant decrease in the run time for the control group. This may have been an example of a Type I Error because no additional treatment was applied to the control group between day 0 and day 14. It is possible that this was a fault in the design of the study, where it was impractical to record all participant's run performances at the same time of day. Because of the simulated time for ketogenic patients to complete a 14-day ketogenic diet, it was imperative to measure variables for the keto group as soon as the simulated time had passed. This may have meant that the variables for the control group were measured later in the day more consistently than was measured on Day 0. A review article by Pullinger et al. (2019) showed a significant increase in sprint time during the afternoon, with participants running slower on average in the evening. Thus, the significant change in run time completion in the control group can be explained by practical limitations that made controlling the time of day unrealistic. Due to the suspected Type I Error, future research may consider controlling for this potential confound. 
+
+The post-sprint respiratory rate, measured two minutes post-sprint, was chosen as a non-invasive indicator of metabolic strain. Since lipid metabolism under a ketogenic diet requires more oxygen than carbohydrate metabolism (Rico-Sanz, 1998), it was expected that participants following the ketogenic diet might exhibit higher post-sprint respiratory rates. Prior research, such as Rubini et al. (2015), suggests that ketogenic diets can alter respiratory patterns by increasing fat oxidation and changing how the body manages carbon dioxide. However, in this study, no significant changes in respiratory rate were observed within or between groups. This may be due to the short duration of the diet, the anaerobic nature of the exercise, or the possibility that the respiratory rate alone is not sensitive enough to capture subtle metabolic shifts. Future studies could explore additional or more precise respiratory markers (such as oxygen cost, as in Burke et al., 2020) to better assess exertion and recovery under different dietary conditions.
+The results describing skin coloration after anaerobic exercise did not indicate any change between the treatment groups. When partaking in anaerobic exercise, the sympathetic nervous system responds by stimulating the release of epinephrine to begin the breakdown of glycogen or fat for energy. High amounts of epinephrine also stimulate vasodilation, which causes an increase in blood flow to the face, as observed in instances of strenuous exercise (Wong & Hollowed, 2016). It was predicted that a ketogenic diet increases oxygen demand, putting the body under more strain manifesting as facial flushing. The lack of facial flushing across any participants suggests that the ketogenic diet did not increase the amount of strain the body was under. However, there may be limitations to using a visual assessment of skin coloration to make inferences about an individual's metabolic exertion. It is possible that participants in each group did experience different levels of strain when producing the energy needed for exercise, but this strain did not manifest itself in facial flushing as predicted. As such, future studies could explore more quantitative means of assessing strain, such as blood oxygen concentration. 
+
+Across all study participants, there were found to be no changes in post-sprint vocal pitch/loudness between days 0 and 14. This deviates from findings obtained by other studies, which found that vocal pitch/loudness tends to increase with physical exertion (Anikin, 2023). Based on this concept, it was hypothesized that a greater proportion of those partaking in the ketogenic diet would experience increased vocal pitch/loudness relative to those in the control group between days 0 and 14 (as an extension of the hypothesis of decreased recovery following anaerobic exercise among those partaking in the ketogenic diet). The observed lack of change could be attributed to the nature of the measurement tools that were used to obtain data relating to vocal pitch/loudness. Such data were collected through perceptual voice evaluations of each participant, which could imply that the data relating to vocal pitch/loudness were subject to some level of measurement error. Perceptual voice evaluation techniques are relatively new (Zraick et al., 2011) and are primarily used for the evaluation of vocal disorders. For these reasons, such techniques may not be ideal for use in exercise physiology contexts at this point. Future studies may look to consider more well-established measurements of vocal recovery effectiveness, such as glottal airflow periodicity (Chien & Gudnason, 2020).
+
+**Comparison to literature**
+
+The study’s findings are of interest because they suggest that short bursts of maximal effort in energy may not be entirely dependent on glycogen stores. Previous studies have noted many inconsistencies among the effects of a ketogenic diet in many athletes, and it is hypothesized that variation in athletic performance while on a ketogenic diet depends on the training regimen (McSwiney, 2019). This suggests that, with sufficient adjustment time, the body can rely just as effectively on fat and glycogen breakdown for energy. It is possible that the participants in our study (largely non-athletes) successfully relied on aerobic metabolic pathways while performing an anaerobic task. 
+
+Another possible explanation for the lack of change in sprint performance may be limitations in the nature of the anaerobic task assigned, which may not have been sufficiently intense to put significant strain on the participants. This can be explained by metabolic mechanisms downstream of fat breakdown, specifically when ketone bodies are produced in the absence of carbohydrates. It is thought that as the body adjusts to a ketogenic diet, breaking down lipids increases the production of ketones (Dhillon & Gupta, 2023). While utilizing ketones for energy can affect exercise efficiency at higher intensities (>70% VO2max), it has been shown they are unlikely to influence sprint performance, which primarily depends on anaerobic metabolism (Dhillon & Gupta, 2023).   A systematic review of studies on ketogenic diets and physical performance found that most power- and strength-based outcomes remained unchanged compared to mixed-macronutrient diets (Gastin, 2001). This offers an explanation as to why the relatively brief task of a 100m run appeared unaffected by carbohydrate reduction. Future studies may consider exploring the impact of a ketogenic diet on more intense exercise, such as High-Intensity Interval workouts (HIIT workouts), which require more energy input and would more clearly indicate changes in energy production between keto and control participants. 
+
+**Implications and Significance**
+
+This study sought to explore the potential energy costs of a ketogenic diet on otherwise healthy individuals representative of the general population. No significant risks or impairments were observed in individuals partaking in short intensive exercise after a 14-day ketogenic diet. The ketogenic diet remains a topic of disagreement in the medical community but is nonetheless recommended as a treatment option for conditions such as epilepsy or obesity (Anderson, 2023).  Given their prevalence and popularity among the general public, it is important to have a firm understanding of the side effects of the ketogenic diet. Though not without its limitations, this study provides evidence that average individuals (non-athletes) are unlikely to experience noticeable energy shortcomings in anaerobic exercise contexts while on a ketogenic diet.
+
+**Future Research Directions**
+
+This study focused on the impacts of a short-term ketogenic diet on energy expenditure and during anaerobic exercise. The effects of long-term ketogenic diets (>1 year) remain largely under-researched and may differ greatly from a short-term diet. Long-term ketogenic diets are typically used as treatments for neurological disorders such as epilepsy (Kossof and Rho, 2009), and as such these treatments would benefit from research considering the broader health consequences of a long-term ketogenic diet. Additionally, this study only focused on results from a single anaerobic task (100-meter sprint). Future studies may want to consider other anaerobic exercise activities, such as weight-lifting or plyometrics. Ultimately, the effect of the ketogenic diet on exercise performance and recovery presents an area of uncertainty and nuance requiring further exploration through future research.
+
+## References
+
+Anderson K. (2023). Popular fad diets: An evidence-based perspective. Progress in Cardiovascular Diseases. 77(1), 78-85. https://doi.org/10.1016/j.pcad.2023.02.001
+
+Anikin, A. (2023). The honest sound of physical effort. PeerJ, 11. https://doi.org/10.7717/peerj.14944 
+
+Basolo, A., Magno, S., Santini, F., & Ceccarini, G. (2022). Ketogenic diet and weight loss: Is there an effect on energy expenditure? Nutrients, 14(9), 1814. https://doi.org/10.3390/nu14091814
+
+Burke, L. M., Ross, M. L., Garvican-Lewis, L. A., Welvaert, M., Heikura, I. A., Forbes, S. F., Mirtschin, J. G., Cato, L. E., Strobel, N., Sharma, A. P., & Hawley, J. A. (2020). Correction: Crisis of confidence averted: Impairment of exercise economy and performance in elite race walkers by ketogenic low carbohydrate, high fat (LCHF) diet is reproducible. PLOS ONE, 15(6), e0235592. https://doi.org/10.1371/journal.pone.0235592
+
+Chien, Y., Gudnason, J. (2020). Acoustic measure of vocal strain based on glottal airflow periodicity. IEEE Transactions on Audio, Speech, and Language Processing, 29, 563-574. https://doi.org/10.1109/TASLP.2020.3044168
+
+D'Agostino, A. M. (2019). Knowledge, Perception, and Use of the Ketogenic Diet in College Students at a Midwestern University [Master's thesis, Kent State University]. OhioLINK Electronic Theses and Dissertations Center. http://rave.ohiolink.edu/etdc/view?acc_num=kent1554895996958351 
+
+Dhillon K. K., & Gupta, S. Biochemistry, Ketogenesis. [Updated 2023 Feb 6]. In: StatPearls [Internet]. Treasure Island (FL): StatPearls Publishing; 2025 Jan-. Available from: https://www.ncbi.nlm.nih.gov/books/NBK493179/
+
+Gastin, P. B. (2001). Energy system interaction and relative contribution during maximal exercise. Sports Medicine, 31(10), 725–741. https://doi.org/10.2165/00007256-200131100-00003
+
+Kossoff, E. H., & Rho, J. M. (2009). Ketogenic diets: Evidence for short- and long-term efficacy. Neurotherapeutics, 6, 406–414. https://doi.org/10.1016/j.nurt.2009.01.005
+
+McSwiney, F. T., Doyle, L., Plews, D. J., & Zinn, C. (2019). Impact of ketogenic diet on athletes: Current insights. Open Access Journal of Sports Medicine, 10, 171–183. https://doi.org/10.2147/OAJSM.S180409
+
+Pullinger, S. A., Cocking, S., Robertson, C. M., Tod, D., Doran, D. A., Burniston, J. G., … Edwards, B. J. (2019). Time-of-day variation on performance measures in repeated-sprint tests: A systematic review. Chronobiology International, 37(4), 451–468. https://doi.org/10.1080/07420528.2019.1703732
+
+Rico-Sanz, J. (1998). Oxidative metabolism and anaerobic glycolysis during repeated exercise. Journal of Physiology and Biochemistry, 54, 217–226. https://doi.org/10.1007/BF03655596
+
+Rubini, A., Bosco, G., Lodi, A., Cenci, L., Parmagnani, A., Grimaldi, K., Yang, Z., & Paoli, A. (2015). Effects of twenty days of the ketogenic diet on metabolic and respiratory parameters in healthy subjects. Lung, 193(6), 939–945. https://doi.org/10.1007/s00408-015-9806-7 
+
+Sandford, G.N. Laursen, P.B., & Buchheit, M. (2021) Anaerobic speed/power reserve and sport performance: Scientific basis, current applications, and future directions. Sports Medicine, 51(10), 2017-2028. https://doi.org/10.1007/s40279-021-01523-9 
+
+van Mersbergen, M., Beckham, B.H., & Hunter, E.J. (2021). Do we need a measure of vocal effort? Clinician’s report of vocal effort in voice patients. Perspectives of the ASHA Special Interest Groups, 6(1), 69-79. https://doi.org/10.1044/2020_persp-20-00258 
+
+Wong, B. J., & Hollowed, C. G. (2016). Current concepts of active vasodilation in human skin. Temperature, 4(1), 41–59. https://doi.org/10.1080/23328940.2016.1200203
+
+Zraick, R. I., Kempster, G. B., Connor, N. P., Thibeault, S., Klaben, B. K., Bursac, Z., Thrush, C. R., & Glaze, L. E. (2011). Establishing validity of the consensus auditory-perceptual evaluation of voice (CAPE-V). American Journal of Speech Language Pathology, 20(1), 14-22. https://doi.org/10.1044/1058-0360(2010/09-0105) 
+
+
+## Appendix
+
+*Appendix - A*
+```{r}
+# Normal Q-Q plot and t-tests for sprint time
+
+data=data%>%
+  mutate(change_sprint=day_14_sprint-day_0_sprint)
+
+data%>%
+  filter(treatment=="Control")%>%
+  ggplot(aes(sample=change_sprint))+
+  stat_qq()+
+  stat_qq_line()+
+  labs(x="Theoretical Quantiles",y="Sample Quantiles")
+
+data%>%
+  filter(treatment=="Keto")%>%
+  ggplot(aes(sample=change_sprint))+
+  stat_qq()+
+  stat_qq_line()+
+  labs(x="Theoretical Quantiles",y="Sample Quantiles")
+
+t.test(data$change_sprint[data$treatment=="Control"])
+
+t.test(data$change_sprint[data$treatment=="Keto"])
+
+t.test(data$change_sprint[data$treatment=="Control"],data$change_sprint[data$treatment=="Keto"])
+```
+
+```{r}
+# Normal Q-Q plot and t-tests for respiratory rate
+data=data%>%
+  mutate(change_resp=day_14_resp-day_0_resp)
+
+data%>%
+  filter(treatment=="Control")%>%
+  ggplot(aes(sample=change_resp))+
+  stat_qq()+
+  stat_qq_line()+
+  labs(x="Theoretical Quantiles",y="Sample Quantiles")
+
+data%>%
+  filter(treatment=="Keto")%>%
+  ggplot(aes(sample=change_resp))+
+  stat_qq()+
+  stat_qq_line()+
+  labs(x="Theoretical Quantiles",y="Sample Quantiles")
+
+t.test(data$change_resp[data$treatment=="Control"])
+
+t.test(data$change_resp[data$treatment=="Keto"])
+
+t.test(data$change_resp[data$treatment=="Control"],data$change_resp[data$treatment=="Keto"])
+```
+
+```{r}
+# Vocal loudness summaries
+
+# Create numerical variable for day 0 vocal loudness, day 14 vocal loudness, numerical variable for change in vocal loudness, and categorical variable for change in vocal loudness
+data=island_data%>%
+  mutate(day_0_loud_num=ifelse(day_0_loud=="Normal",0,1),
+         day_14_loud_num=ifelse(day_14_loud=="Normal",0,1),
+         loud_change_num=day_14_loud_num-day_0_loud_num, 
+         loud_change=ifelse(loud_change_num>0,"Change","No Change")
+         )
+
+# Generate two-way table for day 0 vocal loudness across groups.
+table(data$treatment,data$day_0_loud)
+
+# Generate two-way table for day 14 vocal loudness across groups.
+table(data$treatment,data$day_14_loud)
+
+# Generate two-way table for change in vocal loudness across groups.
+table(data$treatment,data$loud_change)
+```
+*Appendix - B*
+
+Definitions of .csv file column names:
+name = participant name
+
+id_number = participant number (assigned by last name in alphabetical order)
+
+locality = locality of residence at time of study
+
+age = age (years) at time of study
+
+treatment = treatment group (control diet or ketogenic diet)
+
+day_0_sprint = 100 m sprint time elapsed (s) on day 0
+
+day_0_resp = respiratory rate (breaths/min) after sprint on day 0
+
+day_0_skin = skin colour (pale or normal or flushed) after sprint on day 0
+
+day_0_pitch = vocal pitch (low or normal or high) after sprint on day 0
+
+day_0_loud = vocal loudness (low or normal or high) after sprint on day 0 
+
+day_14_sprint = 100 m sprint time elapsed (s) on day 14
+
+day_14_resp = respiratory rate (breaths/min) after sprint on day 14
+
+day_14_skin = skin colour (pale or normal or flushed) after sprint on day 14
+
+day_14_pitch = vocal pitch (low or normal or high) after sprint on day 14
+
+day_14_loud = vocal loudness (low or normal or high) after sprint on day 14
